@@ -9,6 +9,13 @@ import {
   VIDEO_WIDTH,
 } from "../../types/constants";
 import { NextLogo } from "./MyComp/NextLogo";
+import { RailwayRouteAnimation } from "../lib/RailwayRouteAnimation/RailwayRouteAnimation";
+import { RailwayRouteWithFetch } from "../lib/RailwayRouteAnimation/RailwayRouteWithFetch";
+import {
+  RailwayRouteCompositionProps,
+  RailwayRouteWithFetchCompositionProps,
+  defaultRailwayRouteProps,
+} from "../lib/RailwayRouteAnimation/constants";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -32,6 +39,30 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           outProgress: 0,
         }}
+      />
+      <Composition
+        id="RailwayRoute"
+        component={RailwayRouteAnimation}
+        durationInFrames={defaultRailwayRouteProps.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={defaultRailwayRouteProps}
+        schema={RailwayRouteCompositionProps}
+      />
+      <Composition
+        id="RailwayRouteWithFetch"
+        component={RailwayRouteWithFetch as any}
+        durationInFrames={defaultRailwayRouteProps.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={{
+          ...defaultRailwayRouteProps,
+          fetchRoute: true,
+          routeMethod: "openrailrouting",
+        }}
+        schema={RailwayRouteWithFetchCompositionProps}
       />
     </>
   );
