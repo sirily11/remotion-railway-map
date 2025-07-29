@@ -9,7 +9,7 @@ import {
   interpolate,
   Easing,
 } from 'remotion';
-import mapboxgl, { Map } from 'mapbox-gl';
+import mapboxgl, { Map, Marker } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
 import { RailwayRouteProps } from './constants';
@@ -33,6 +33,8 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
   animationStartDelay,
   animationDuration,
   mapStyle = 'dark',
+  mapboxZoom,
+  mapboxAltitude = 50000,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
@@ -40,6 +42,8 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
   const { fps } = useVideoConfig();
   const [handle] = useState(() => delayRender('Loading map...'));
   const [mapReady, setMapReady] = useState(false);
+  const startMarkerRef = useRef<Marker | null>(null);
+  const endMarkerRef = useRef<Marker | null>(null);
 
   // Convert positions to coordinates
   const startCoord = useMemo(() => positionToPoint(startPosition), [startPosition]);
@@ -92,15 +96,25 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
       .extend([startCoord.longitude, startCoord.latitude])
       .extend([endCoord.longitude, endCoord.latitude]);
 
-    const _map = new Map({
+    const mapOptions: mapboxgl.MapboxOptions = {
       container: 'map',
       style: MAP_STYLES[mapStyle],
-      bounds: bounds,
-      fitBoundsOptions: { padding: 100 },
       interactive: false,
       fadeDuration: 0,
       preserveDrawingBuffer: true,
-    });
+    };
+
+    // If zoom is specified, use center and zoom instead of bounds
+    if (mapboxZoom !== undefined) {
+      const center = bounds.getCenter();
+      mapOptions.center = center;
+      mapOptions.zoom = mapboxZoom;
+    } else {
+      mapOptions.bounds = bounds;
+      mapOptions.fitBoundsOptions = { padding: 100 };
+    }
+
+    const _map = new Map(mapOptions);
 
     _map.on('style.load', () => {
       // Add route source
@@ -221,40 +235,64 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
         },
       });
 
-      // Station labels
-      _map.addLayer({
-        type: 'symbol',
-        source: 'stations',
-        id: 'station-labels',
-        layout: {
-          'text-field': ['get', 'name'],
-          'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
-          'text-size': 16,
-          'text-offset': [0, -2.5],
-          'text-anchor': 'bottom',
-        },
-        paint: {
-          'text-color': '#ffffff',
-          'text-halo-color': '#000000',
-          'text-halo-width': 2,
-        },
-      });
+      // We'll add custom markers with HTML elements instead of using Mapbox layers for labels
     });
 
     _map.on('load', () => {
       continueRender(handle);
       mapRef.current = _map;
+      
+      // Create custom HTML markers for station labels
+      const createLabelElement = (text: string) => {
+        const el = document.createElement('div');
+        el.style.cssText = `
+          background: white;
+          color: black;
+          padding: 12px 24px;
+          border-radius: 24px;
+          font-family: 'DIN Pro Bold', 'Arial Unicode MS Bold', sans-serif;
+          font-size: 48px;
+          font-weight: bold;
+          white-space: nowrap;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: translateY(-80px);
+          transition: opacity 0.3s ease-in-out;
+        `;
+        el.textContent = text;
+        return el;
+      };
+      
+      // Create start station marker
+      const startLabelEl = createLabelElement(startPosition.name);
+      startMarkerRef.current = new Marker({ element: startLabelEl, anchor: 'bottom' })
+        .setLngLat([startCoord.longitude, startCoord.latitude])
+        .addTo(_map);
+      
+      // Create end station marker
+      const endLabelEl = createLabelElement(endPosition.name);
+      endMarkerRef.current = new Marker({ element: endLabelEl, anchor: 'bottom' })
+        .setLngLat([endCoord.longitude, endCoord.latitude])
+        .addTo(_map);
+      
       // Give a small delay to ensure all layers are ready
       setTimeout(() => setMapReady(true), 100);
     });
 
     return () => {
+      if (startMarkerRef.current) {
+        startMarkerRef.current.remove();
+        startMarkerRef.current = null;
+      }
+      if (endMarkerRef.current) {
+        endMarkerRef.current.remove();
+        endMarkerRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [handle, mapStyle, routeCoordinates, startCoord, endCoord, startPosition.name, endPosition.name]);
+  }, [handle, mapStyle, routeCoordinates, startCoord, endCoord, startPosition.name, endPosition.name, mapboxZoom]);
 
   useEffect(() => {
     if (!mapRef.current || !mapReady) return;
@@ -285,15 +323,26 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
           });
         }
 
-        // Update station visibility
-        if (mapRef.current?.getLayer('station-labels')) {
-          mapRef.current.setPaintProperty('station-labels', 'text-opacity', animation === 0 ? startLabelOpacity : endLabelOpacity);
+        // Update station label visibility
+        if (startMarkerRef.current && endMarkerRef.current) {
+          const startEl = startMarkerRef.current.getElement();
+          const endEl = endMarkerRef.current.getElement();
+          
+          // Only show start label before animation starts
+          if (startEl) {
+            startEl.style.opacity = frame < animationStartDelay ? '1' : '0';
+          }
+          
+          // Only show end label after animation completes
+          if (endEl) {
+            endEl.style.opacity = frame > animationStartDelay + animationDuration ? '1' : '0';
+          }
         }
         
         // Camera follows the route
         const camera = mapRef.current?.getFreeCameraOptions();
         if (camera && mapRef.current) {
-          const altitude = 50000; // Higher altitude for overview
+          const altitude = mapboxAltitude; // Use configurable altitude
           
           camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
             {
@@ -328,7 +377,7 @@ export const MapboxRailwayRoute: React.FC<RailwayRouteProps & { mapStyle?: keyof
     } else {
       mapRef.current?.once('idle', handleFrame);
     }
-  }, [mapReady, animation, routeCoordinates, startLabelOpacity, endLabelOpacity]);
+  }, [mapReady, animation, routeCoordinates, frame, animationStartDelay, animationDuration]);
 
   return (
     <AbsoluteFill>

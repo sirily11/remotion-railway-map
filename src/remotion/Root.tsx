@@ -58,9 +58,24 @@ export const RemotionRoot: React.FC = () => {
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         defaultProps={{
-          ...defaultRailwayRouteProps,
+          startPosition: {
+            coordinate: { latitude: 35.4687988, longitude: 135.3951224 },
+            name: "Higashi Maizuru Station",
+          },
+          endPosition: {
+            coordinate: { latitude: 35.3023425, longitude: 135.2523702 },
+            name: "Ayabe Station",
+          },
+          durationInFrames: 200,
+          animationStartDelay: 30,
+          animationDuration: 120,
+          renderType: "mapbox" as const,
+          mapboxStyle: "dark" as const,
+          tileStyle: "dark" as const,
           fetchRoute: true,
-          routeMethod: "openrailrouting",
+          routeMethod: "openrailrouting" as const,
+          mapboxZoom: 30,
+          mapboxAltitude: 10000,
         }}
         schema={RailwayRouteWithFetchCompositionProps}
       />

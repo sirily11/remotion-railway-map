@@ -66,6 +66,8 @@ export const RailwayRouteCompositionProps = z.object({
   renderType: MapRenderType.default("tiles"),
   mapboxStyle: MapboxStyle.default("dark"),
   tileStyle: TileStyle.default("dark"),
+  mapboxZoom: z.number().min(0).max(100).default(10).optional(),
+  mapboxAltitude: z.number().min(0).default(50000).optional(),
 });
 
 // Extended props with fetching capabilities

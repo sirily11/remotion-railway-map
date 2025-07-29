@@ -36,17 +36,21 @@ const getBackgroundColor = (tileStyle: string) => {
   }
 };
 
-export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = ({
-  startPosition,
-  endPosition,
-  route,
-  durationInFrames,
-  animationStartDelay,
-  animationDuration,
-  renderType,
-  mapboxStyle,
-  tileStyle,
-}) => {
+export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
+  const {
+    startPosition,
+    endPosition,
+    route,
+    durationInFrames,
+    animationStartDelay,
+    animationDuration,
+    renderType,
+    mapboxStyle,
+    tileStyle,
+    mapboxZoom,
+    mapboxAltitude,
+  } = props;
+  
   // If using Mapbox, delegate to MapboxRailwayRoute
   if (renderType === 'mapbox') {
     return (
@@ -58,6 +62,8 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = ({
         animationStartDelay={animationStartDelay}
         animationDuration={animationDuration}
         mapStyle={mapboxStyle}
+        mapboxZoom={mapboxZoom}
+        mapboxAltitude={mapboxAltitude}
       />
     );
   }
