@@ -34,8 +34,8 @@ const getPathFromRoute = ({
   
   // Convert all route points to mercator projection
   const projectedPoints = route.map(coord => ({
-    x: getXFromLongitude(coord.longitude, zoom),
-    y: getYFromLatitude(coord.latitude, zoom),
+    x: getXFromLongitude(parseFloat(coord.longitude), zoom),
+    y: getYFromLatitude(parseFloat(coord.latitude), zoom),
   }));
   
   // Get the first point as reference

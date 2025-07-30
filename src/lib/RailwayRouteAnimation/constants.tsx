@@ -84,6 +84,15 @@ export const RailwayRouteCompositionProps = z.object({
     .describe(
       "Camera smoothing strength (0-1). Higher values = smoother but slower camera movement",
     ),
+  cameraSamplePoints: z
+    .number()
+    .min(2)
+    .max(100)
+    .default(20)
+    .optional()
+    .describe(
+      "Number of sample points for camera movement (2-100). Lower values = smoother camera path",
+    ),
 });
 
 // Complete props with fetching capabilities - all properties in one schema
@@ -127,6 +136,15 @@ export const RailwayRouteWithFetchCompositionProps = z
       .optional()
       .describe(
         "Camera smoothing strength (0-1). Higher values = smoother but slower camera movement",
+      ),
+    cameraSamplePoints: z
+      .number()
+      .min(2)
+      .max(100)
+      .default(20)
+      .optional()
+      .describe(
+        "Number of sample points for camera movement (2-100). Lower values = smoother camera path",
       ),
     fetchRoute: z
       .boolean()

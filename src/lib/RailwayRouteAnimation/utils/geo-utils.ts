@@ -51,14 +51,14 @@ export const calculateZoom = (start: Point, end: Point): number => {
 
 // Convert Position to Point
 export const positionToPoint = (position: Position): Point => ({
-  latitude: position.coordinate.latitude,
-  longitude: position.coordinate.longitude,
+  latitude: parseFloat(position.coordinate.latitude),
+  longitude: parseFloat(position.coordinate.longitude),
 });
 
 // Convert RouteCoordinate to Point
 export const routeCoordinateToPoint = (coord: RouteCoordinate): Point => ({
-  latitude: coord.latitude,
-  longitude: coord.longitude,
+  latitude: parseFloat(coord.latitude),
+  longitude: parseFloat(coord.longitude),
 });
 
 // Get label position based on relative positions

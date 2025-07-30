@@ -15,7 +15,6 @@ export const smoothCameraPath = (
   const {
     smoothingFactor = 0.3,
     lookaheadDistance = 0.1,
-    dampingFactor = 0.85,
   } = options;
 
   if (points.length === 0) {
@@ -41,12 +40,12 @@ export const smoothCameraPath = (
     latitude: interpolate(
       localProgress,
       [0, 1],
-      [parseFloat(currentPoint.latitude), parseFloat(nextPoint.latitude)]
+      [currentPoint.latitude, nextPoint.latitude]
     ),
     longitude: interpolate(
       localProgress,
       [0, 1],
-      [parseFloat(currentPoint.longitude), parseFloat(nextPoint.longitude)]
+      [currentPoint.longitude, nextPoint.longitude]
     ),
   };
 
@@ -64,12 +63,12 @@ export const smoothCameraPath = (
     latitude: interpolate(
       lookaheadLocalProgress,
       [0, 1],
-      [parseFloat(lookaheadCurrent.latitude), parseFloat(lookaheadNext.latitude)]
+      [lookaheadCurrent.latitude, lookaheadNext.latitude]
     ),
     longitude: interpolate(
       lookaheadLocalProgress,
       [0, 1],
-      [parseFloat(lookaheadCurrent.longitude), parseFloat(lookaheadNext.longitude)]
+      [lookaheadCurrent.longitude, lookaheadNext.longitude]
     ),
   };
 
@@ -80,8 +79,8 @@ export const smoothCameraPath = (
   };
 
   return {
-    latitude: smoothedPosition.latitude.toString(),
-    longitude: smoothedPosition.longitude.toString(),
+    latitude: smoothedPosition.latitude,
+    longitude: smoothedPosition.longitude,
   };
 };
 
@@ -91,15 +90,42 @@ export const applyCameraSmoothing = (
   smoothingStrength: number = 0.15
 ): Point => {
   // Exponential smoothing between current and target positions
-  const smoothedLat = parseFloat(currentCenter.latitude) * (1 - smoothingStrength) + 
-                     parseFloat(targetCenter.latitude) * smoothingStrength;
-  const smoothedLon = parseFloat(currentCenter.longitude) * (1 - smoothingStrength) + 
-                     parseFloat(targetCenter.longitude) * smoothingStrength;
+  const smoothedLat = currentCenter.latitude * (1 - smoothingStrength) + 
+                     targetCenter.latitude * smoothingStrength;
+  const smoothedLon = currentCenter.longitude * (1 - smoothingStrength) + 
+                     targetCenter.longitude * smoothingStrength;
 
   return {
-    latitude: smoothedLat.toString(),
-    longitude: smoothedLon.toString(),
+    latitude: smoothedLat,
+    longitude: smoothedLon,
   };
+};
+
+export const sampleRoutePoints = (
+  points: Point[],
+  targetSampleCount: number = 20
+): Point[] => {
+  if (points.length <= targetSampleCount) {
+    // If we already have fewer points than the target, return all points
+    return points;
+  }
+
+  const sampledPoints: Point[] = [];
+  const stepSize = (points.length - 1) / (targetSampleCount - 1);
+
+  // Always include the first point
+  sampledPoints.push(points[0]);
+
+  // Sample intermediate points
+  for (let i = 1; i < targetSampleCount - 1; i++) {
+    const index = Math.round(i * stepSize);
+    sampledPoints.push(points[index]);
+  }
+
+  // Always include the last point
+  sampledPoints.push(points[points.length - 1]);
+
+  return sampledPoints;
 };
 
 export const bezierSmoothing = (
@@ -129,20 +155,20 @@ export const bezierSmoothing = (
   const t3 = t2 * t;
 
   const v0 = {
-    lat: parseFloat(p0.latitude),
-    lon: parseFloat(p0.longitude),
+    lat: p0.latitude,
+    lon: p0.longitude,
   };
   const v1 = {
-    lat: parseFloat(p1.latitude),
-    lon: parseFloat(p1.longitude),
+    lat: p1.latitude,
+    lon: p1.longitude,
   };
   const v2 = {
-    lat: parseFloat(p2.latitude),
-    lon: parseFloat(p2.longitude),
+    lat: p2.latitude,
+    lon: p2.longitude,
   };
   const v3 = {
-    lat: parseFloat(p3.latitude),
-    lon: parseFloat(p3.longitude),
+    lat: p3.latitude,
+    lon: p3.longitude,
   };
 
   const latitude = 0.5 * (
@@ -160,7 +186,7 @@ export const bezierSmoothing = (
   );
 
   return {
-    latitude: latitude.toString(),
-    longitude: longitude.toString(),
+    latitude: latitude,
+    longitude: longitude,
   };
 };

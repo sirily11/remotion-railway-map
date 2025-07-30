@@ -17,7 +17,7 @@ import {
   Point,
 } from './utils/geo-utils';
 import { getArea, getOffset } from './utils/get-area';
-import { bezierSmoothing, applyCameraSmoothing } from './utils/camera-smoothing';
+import { bezierSmoothing, applyCameraSmoothing, sampleRoutePoints } from './utils/camera-smoothing';
 
 const getBackgroundColor = (tileStyle: string) => {
   switch (tileStyle) {
@@ -43,6 +43,7 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
     tileStyle,
     zoom: propsZoom,
     cameraSmoothing = 0.08,
+    cameraSamplePoints = 20,
   } = props;
   
   // Use stops if provided
@@ -180,13 +181,16 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
       const currentSegment = segments[currentSegmentIndex];
       
       // Convert segment to points
-      const segmentPoints = currentSegment.map(coord => ({
-        latitude: coord.latitude,
-        longitude: coord.longitude,
+      const segmentPoints: Point[] = currentSegment.map(coord => ({
+        latitude: parseFloat(coord.latitude),
+        longitude: parseFloat(coord.longitude),
       }));
       
-      // Use bezier smoothing for camera path
-      return bezierSmoothing(segmentPoints, segmentAnimation, 0.3);
+      // Sample the route points to reduce camera movement complexity
+      const sampledPoints = sampleRoutePoints(segmentPoints, cameraSamplePoints);
+      
+      // Use bezier smoothing for camera path on sampled points
+      return bezierSmoothing(sampledPoints, segmentAnimation, 0.3);
     }
     
     // Fallback to interpolating between stops if no segments
@@ -197,13 +201,13 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
       latitude: interpolate(
         segmentAnimation,
         [0, 1],
-        [parseFloat(fromStop.latitude), parseFloat(toStop.latitude)]
-      ).toString(),
+        [fromStop.latitude, toStop.latitude]
+      ),
       longitude: interpolate(
         segmentAnimation,
         [0, 1],
-        [parseFloat(fromStop.longitude), parseFloat(toStop.longitude)]
-      ).toString(),
+        [fromStop.longitude, toStop.longitude]
+      ),
     };
   }, [currentSegmentIndex, stopPoints, segmentAnimation, segments]);
   

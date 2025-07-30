@@ -81,6 +81,7 @@ export const RemotionRoot: React.FC = () => {
           fetchRoute: true,
           routeMethod: "openrailway" as const,
           zoom: 15,
+          fetchStationCoordinates: false,
         }}
         schema={RailwayRouteWithFetchCompositionProps}
       />

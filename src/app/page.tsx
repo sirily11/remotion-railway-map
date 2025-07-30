@@ -2,8 +2,7 @@
 
 import { Player } from "@remotion/player";
 import type { NextPage } from "next";
-import { useLocalStorage } from "@uidotdev/usehooks";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   DURATION_IN_FRAMES,
   VIDEO_FPS,
@@ -13,6 +12,7 @@ import {
 import { RailwayRouteWithFetch } from "../lib/RailwayRouteAnimation/RailwayRouteWithFetch";
 import { RailwayRouteForm } from "../components/RailwayRouteForm";
 import { defaultRailwayRouteProps } from "../lib/RailwayRouteAnimation/constants";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 const Home: NextPage = () => {
   const defaultFormData = {
@@ -25,12 +25,12 @@ const Home: NextPage = () => {
     fetchRoute: true,
     routeMethod: "openrailway",
     fetchStationCoordinates: false,
-    cameraSmoothing: 0.08,
+    cameraSmoothing: 0.2,
   };
 
   const [formData, setFormData] = useLocalStorage(
     "railwayRouteFormData",
-    defaultFormData
+    defaultFormData,
   );
 
   const inputProps = useMemo(() => {
