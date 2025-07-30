@@ -3,8 +3,12 @@ import { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Remotion and Next.js",
-  description: "Remotion and Next.js",
+  title: "Railway Route Animation",
+  description: "Railway Route Animation",
+  openGraph: {
+    title: "Railway Route Animation",
+    description: "Railway Route Animation",
+  },
 };
 
 export const viewport: Viewport = {
