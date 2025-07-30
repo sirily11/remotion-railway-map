@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Railway Route Animation",
     description: "Railway Route Animation",
+    images: [{ url: "/og-image.webp" }],
   },
 };
 
