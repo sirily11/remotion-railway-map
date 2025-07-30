@@ -59,8 +59,8 @@
     "typescript": "5.8.2"
   },
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build --turbo",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "remotion": "remotion studio",
