@@ -1,6 +1,8 @@
 import "../../styles/global.css";
 import { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { FlyingEmojis } from "@/components/FlyingEmojis";
+import { DrivingTrains } from "@/components/DrivingTrains";
 
 export const metadata: Metadata = {
   title: "Railway Route Animation",
@@ -26,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background">
-        {children}
+        <FlyingEmojis />
+        <DrivingTrains />
+        <div className="relative z-10">{children}</div>
         <Toaster position="top-right" />
       </body>
     </html>

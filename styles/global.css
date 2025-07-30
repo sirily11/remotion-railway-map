@@ -4,85 +4,85 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --unfocused-border-color: #eaeaea;
-  --focused-border-color: #666;
+  --unfocused-border-color: #FFE4E1;
+  --focused-border-color: #FFB6C1;
 
   --button-disabled-color: #fafafa;
   --disabled-text-color: #999;
 
-  --geist-border-radius: 5px;
+  --geist-border-radius: 20px;
   --geist-quarter-pad: 6px;
   --geist-half-pad: 12px;
   --geist-pad: 24px;
-  --geist-font: "Inter";
+  --geist-font: "Comic Sans MS", "Comic Neue", cursive;
 
-  --geist-error: #e00;
+  --geist-error: #ff6b6b;
 
-  --subtitle: #666;
+  --subtitle: #8b5a8c;
 
-  --radius: 0.625rem;
+  --radius: 1.5rem;
 
-  --background: oklch(1 0 0);
+  --background: #FFF5F7;
 
-  --foreground: oklch(0.145 0 0);
+  --foreground: #4A5568;
 
-  --card: oklch(1 0 0);
+  --card: #FFFFFF;
 
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: #4A5568;
 
-  --popover: oklch(1 0 0);
+  --popover: #FFFFFF;
 
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: #4A5568;
 
-  --primary: oklch(0.205 0 0);
+  --primary: #FFB6C1;
 
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.97 0 0);
+  --secondary: #E6E6FA;
 
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary-foreground: #4A5568;
 
-  --muted: oklch(0.97 0 0);
+  --muted: #F0E6FF;
 
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: #718096;
 
-  --accent: oklch(0.97 0 0);
+  --accent: #FFE4B5;
 
-  --accent-foreground: oklch(0.205 0 0);
+  --accent-foreground: #4A5568;
 
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: #FFA07A;
 
-  --border: oklch(0.922 0 0);
+  --border: #FFD1DC;
 
-  --input: oklch(0.922 0 0);
+  --input: #FFF0F5;
 
-  --ring: oklch(0.708 0 0);
+  --ring: #FFB6C1;
 
-  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-1: oklch(0.75 0.25 350);
 
-  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-2: oklch(0.7 0.2 180);
 
-  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-3: oklch(0.65 0.25 270);
 
-  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-4: oklch(0.8 0.2 60);
 
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-5: oklch(0.75 0.25 120);
 
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.99 0.03 120);
 
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: oklch(0.25 0.15 280);
 
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.65 0.2 280);
 
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
 
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.92 0.08 200);
 
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent-foreground: oklch(0.25 0.15 280);
 
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.85 0.1 280);
 
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.65 0.2 280);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -202,5 +202,167 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--geist-font);
   }
+}
+
+/* Cartoon-style animations and effects */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotate(-5deg);
+  }
+  66% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Apply cartoon effects to various elements */
+h1, h2, h3 {
+  text-shadow: 3px 3px 0 rgba(255, 182, 193, 0.3);
+  animation: wiggle 4s ease-in-out infinite;
+  letter-spacing: 0.05em;
+}
+
+button, .btn {
+  box-shadow: 4px 4px 0 rgba(255, 182, 193, 0.5);
+  transition: all 0.2s ease;
+  border-radius: 25px;
+  font-weight: 600;
+}
+
+button:hover, .btn:hover {
+  transform: translate(-2px, -2px) scale(1.05);
+  box-shadow: 6px 6px 0 rgba(255, 182, 193, 0.5);
+  background: linear-gradient(45deg, #FFE4E1, #FFB6C1);
+}
+
+button:active, .btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(255, 182, 193, 0.5);
+}
+
+.card, .bg-card {
+  box-shadow: 0 8px 32px rgba(255, 182, 193, 0.2);
+  border: 3px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+input, select, textarea {
+  border: 3px solid var(--input);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--focused-border-color);
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 182, 193, 0.5);
+  background: linear-gradient(to right, #FFF5F7, #FFE4E1);
+}
+
+/* Make form labels bounce on hover */
+label:hover {
+  animation: bounce 0.5s ease;
+}
+
+/* Cartoon-style scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+  border: 3px solid var(--muted);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--focused-border-color);
+}
+
+/* Add cartoon background pattern */
+body {
+  position: relative;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(230, 230, 250, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(255, 228, 181, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 60% 60%, rgba(240, 230, 255, 0.15) 0%, transparent 50%);
+}
+
+/* Cute animations for interactive elements */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Cute selection colors */
+::selection {
+  background: rgba(255, 182, 193, 0.3);
+  color: #4A5568;
+}
+
+::-moz-selection {
+  background: rgba(255, 182, 193, 0.3);
+  color: #4A5568;
 }
