@@ -60,12 +60,18 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           stops: [
             {
-              coordinate: { latitude: 35.4687988, longitude: 135.3951224 },
-              name: "Higashi Maizuru Station",
+              coordinate: {
+                latitude: "35.64498400968528",
+                longitude: "136.07688359750063",
+              },
+              name: "Tsuruga Station",
             },
             {
-              coordinate: { latitude: 35.3023425, longitude: 135.2523702 },
-              name: "Ayabe Station",
+              coordinate: {
+                latitude: "35.46872006058003",
+                longitude: "135.3953369974494",
+              },
+              name: "Higashi-Maizuru Station",
             },
           ],
           durationInFrames: 600,
@@ -77,32 +83,6 @@ export const RemotionRoot: React.FC = () => {
           zoom: 15,
         }}
         schema={RailwayRouteWithFetchCompositionProps}
-      />
-      <Composition
-        id="MultiStopRailwayRoute"
-        component={RailwayRouteAnimation}
-        durationInFrames={defaultRailwayRouteProps.durationInFrames}
-        fps={VIDEO_FPS}
-        width={VIDEO_WIDTH}
-        height={VIDEO_HEIGHT}
-        defaultProps={{
-          stops: [
-            {
-              coordinate: { latitude: 35.6762, longitude: 139.6503 },
-              name: "Tokyo Station",
-            },
-            {
-              coordinate: { latitude: 35.1033, longitude: 138.86 },
-              name: "Atami Station",
-            },
-          ],
-          durationInFrames: 300,
-          animationStartDelay: 30,
-          animationDuration: 240,
-          tileStyle: "osm" as const,
-          zoom: 8,
-        }}
-        schema={RailwayRouteCompositionProps}
       />
     </>
   );

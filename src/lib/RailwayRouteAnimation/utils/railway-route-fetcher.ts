@@ -16,17 +16,17 @@ export interface RouteOptions {
 // Station info for Overpass API
 interface StationInfo {
   name: string;
-  lat: number;
-  lon: number;
+  lat: string;
+  lon: string;
   id?: string;
 }
 
 // Fetch railway route between two stations
 export async function fetchRailwayRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
   startName: string,
   endName: string,
   options: RouteOptions = { method: "curved" },
@@ -69,10 +69,10 @@ export async function fetchRailwayRoute(
 
 // OpenStreetMap routing using OSRM (Open Source Routing Machine)
 async function fetchOSMRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
   profile: string = "driving",
 ): Promise<RouteCoordinate[]> {
   try {
@@ -106,21 +106,25 @@ async function fetchOSMRoute(
 
 // Overpass API to find railway tracks between stations
 async function fetchOverpassRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
   startName: string,
   endName: string,
 ): Promise<RouteCoordinate[]> {
   try {
     // Create bounding box with some padding
-    const latPadding = Math.abs(endLat - startLat) * 0.2 + 0.01;
-    const lonPadding = Math.abs(endLon - startLon) * 0.2 + 0.01;
-    const minLat = Math.min(startLat, endLat) - latPadding;
-    const maxLat = Math.max(startLat, endLat) + latPadding;
-    const minLon = Math.min(startLon, endLon) - lonPadding;
-    const maxLon = Math.max(startLon, endLon) + lonPadding;
+    const startLatNum = parseFloat(startLat);
+    const endLatNum = parseFloat(endLat);
+    const startLonNum = parseFloat(startLon);
+    const endLonNum = parseFloat(endLon);
+    const latPadding = Math.abs(endLatNum - startLatNum) * 0.2 + 0.01;
+    const lonPadding = Math.abs(endLonNum - startLonNum) * 0.2 + 0.01;
+    const minLat = Math.min(startLatNum, endLatNum) - latPadding;
+    const maxLat = Math.max(startLatNum, endLatNum) + latPadding;
+    const minLon = Math.min(startLonNum, endLonNum) - lonPadding;
+    const maxLon = Math.max(startLonNum, endLonNum) + lonPadding;
 
     // Enhanced Overpass query to find railway routes and stations
     const query = `
@@ -214,8 +218,8 @@ async function fetchOverpassRoute(
       if (!way.geometry) continue;
 
       for (const node of way.geometry) {
-        const distToStart = getDistance(startLat, startLon, node.lat, node.lon);
-        const distToEnd = getDistance(endLat, endLon, node.lat, node.lon);
+        const distToStart = getDistance(startLat, startLon, node.lat.toString(), node.lon.toString());
+        const distToEnd = getDistance(endLat, endLon, node.lat.toString(), node.lon.toString());
 
         if (distToStart < minStartDist) {
           minStartDist = distToStart;
@@ -248,14 +252,14 @@ async function fetchOverpassRoute(
           const distToStart = getDistance(
             startLat,
             startLon,
-            coord.latitude,
-            coord.longitude,
+            coord.latitude.toString(),
+            coord.longitude.toString(),
           );
           const distToEnd = getDistance(
             endLat,
             endLon,
-            coord.latitude,
-            coord.longitude,
+            coord.latitude.toString(),
+            coord.longitude.toString(),
           );
 
           if (distToStart < minStartDist) {
@@ -314,18 +318,22 @@ async function fetchOverpassRoute(
 
 // Helper function to calculate distance between two points
 function getDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
+  lat1: string,
+  lon1: string,
+  lat2: string,
+  lon2: string,
 ): number {
+  const lat1Num = parseFloat(lat1);
+  const lon1Num = parseFloat(lon1);
+  const lat2Num = parseFloat(lat2);
+  const lon2Num = parseFloat(lon2);
   const R = 6371; // Earth's radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const dLat = ((lat2Num - lat1Num) * Math.PI) / 180;
+  const dLon = ((lon2Num - lon1Num) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
+    Math.cos((lat1Num * Math.PI) / 180) *
+      Math.cos((lat2Num * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
@@ -334,11 +342,11 @@ function getDistance(
 
 // OpenRailway API - dedicated railway routing service
 async function fetchOpenRailwayRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
-  profile: string = "all_tracks",
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
+  _profile: string = "all_tracks",
 ): Promise<RouteCoordinate[]> {
   try {
     // OpenRailway uses GraphHopper routing engine with railway data
@@ -372,19 +380,23 @@ async function fetchOpenRailwayRoute(
 
 // Simplified railway-only route fetcher
 async function fetchSimpleRailwayRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
 ): Promise<RouteCoordinate[]> {
   try {
     // Calculate bounding box
-    const latPadding = Math.abs(endLat - startLat) * 0.1 + 0.005;
-    const lonPadding = Math.abs(endLon - startLon) * 0.1 + 0.005;
-    const minLat = Math.min(startLat, endLat) - latPadding;
-    const maxLat = Math.max(startLat, endLat) + latPadding;
-    const minLon = Math.min(startLon, endLon) - lonPadding;
-    const maxLon = Math.max(startLon, endLon) + lonPadding;
+    const startLatNum = parseFloat(startLat);
+    const endLatNum = parseFloat(endLat);
+    const startLonNum = parseFloat(startLon);
+    const endLonNum = parseFloat(endLon);
+    const latPadding = Math.abs(endLatNum - startLatNum) * 0.1 + 0.005;
+    const lonPadding = Math.abs(endLonNum - startLonNum) * 0.1 + 0.005;
+    const minLat = Math.min(startLatNum, endLatNum) - latPadding;
+    const maxLat = Math.max(startLatNum, endLatNum) + latPadding;
+    const minLon = Math.min(startLonNum, endLonNum) - lonPadding;
+    const maxLon = Math.max(startLonNum, endLonNum) + lonPadding;
 
     // Simple query for just railway tracks
     const query = `
@@ -428,8 +440,8 @@ async function fetchSimpleRailwayRoute(
 
       // Find closest points on this track to start and end
       way.geometry.forEach((node: any, idx: number) => {
-        const distToStart = getDistance(startLat, startLon, node.lat, node.lon);
-        const distToEnd = getDistance(endLat, endLon, node.lat, node.lon);
+        const distToStart = getDistance(startLat, startLon, node.lat.toString(), node.lon.toString());
+        const distToEnd = getDistance(endLat, endLon, node.lat.toString(), node.lon.toString());
 
         if (distToStart < minDistToStart) {
           minDistToStart = distToStart;
@@ -495,19 +507,23 @@ async function fetchSimpleRailwayRoute(
 
 // Generate a straight line route
 function generateStraightRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
   points: number = 100,
 ): RouteCoordinate[] {
   const route: RouteCoordinate[] = [];
 
+  const startLatNum = parseFloat(startLat);
+  const endLatNum = parseFloat(endLat);
+  const startLonNum = parseFloat(startLon);
+  const endLonNum = parseFloat(endLon);
   for (let i = 0; i <= points; i++) {
     const t = i / points;
     route.push({
-      latitude: startLat + (endLat - startLat) * t,
-      longitude: startLon + (endLon - startLon) * t,
+      latitude: (startLatNum + (endLatNum - startLatNum) * t).toString(),
+      longitude: (startLonNum + (endLonNum - startLonNum) * t).toString(),
     });
   }
 
@@ -516,21 +532,26 @@ function generateStraightRoute(
 
 // Generate a curved route (quadratic bezier)
 function generateCurvedRoute(
-  startLat: number,
-  startLon: number,
-  endLat: number,
-  endLon: number,
+  startLat: string,
+  startLon: string,
+  endLat: string,
+  endLon: string,
   points: number = 100,
 ): RouteCoordinate[] {
   const route: RouteCoordinate[] = [];
 
+  const startLatNum = parseFloat(startLat);
+  const endLatNum = parseFloat(endLat);
+  const startLonNum = parseFloat(startLon);
+  const endLonNum = parseFloat(endLon);
+
   // Calculate control point for curve
-  const midLat = (startLat + endLat) / 2;
-  const midLon = (startLon + endLon) / 2;
+  const midLat = (startLatNum + endLatNum) / 2;
+  const midLon = (startLonNum + endLonNum) / 2;
 
   // Offset the control point perpendicular to the line
-  const dx = endLon - startLon;
-  const dy = endLat - startLat;
+  const dx = endLonNum - startLonNum;
+  const dy = endLatNum - startLatNum;
   const distance = Math.sqrt(dx * dx + dy * dy);
   const offset = distance * 0.2; // 20% offset
 
@@ -547,12 +568,12 @@ function generateCurvedRoute(
     const t1 = 1 - t;
 
     // Quadratic bezier formula
-    const lat = t1 * t1 * startLat + 2 * t1 * t * controlLat + t * t * endLat;
-    const lon = t1 * t1 * startLon + 2 * t1 * t * controlLon + t * t * endLon;
+    const lat = t1 * t1 * startLatNum + 2 * t1 * t * controlLat + t * t * endLatNum;
+    const lon = t1 * t1 * startLonNum + 2 * t1 * t * controlLon + t * t * endLonNum;
 
     route.push({
-      latitude: lat,
-      longitude: lon,
+      latitude: lat.toString(),
+      longitude: lon.toString(),
     });
   }
 
@@ -591,8 +612,8 @@ export async function fetchStationByName(
       const station = data.elements[0];
       return {
         name: station.tags.name,
-        lat: station.lat,
-        lon: station.lon,
+        lat: station.lat.toString(),
+        lon: station.lon.toString(),
         id: station.id,
       };
     }

@@ -3,16 +3,16 @@ import { z } from "zod";
 // Position with coordinate and name
 const position = z.object({
   coordinate: z.object({
-    longitude: z.number(),
-    latitude: z.number(),
+    longitude: z.string(),
+    latitude: z.string(),
   }),
   name: z.string(),
 });
 
 // Route coordinate
 const routeCoordinate = z.object({
-  longitude: z.number(),
-  latitude: z.number(),
+  longitude: z.string(),
+  latitude: z.string(),
 });
 
 export type Position = z.infer<typeof position>;
@@ -103,15 +103,15 @@ export const defaultRailwayRouteProps: RailwayRouteProps = {
   stops: [
     {
       coordinate: {
-        latitude: 35.4687988,
-        longitude: 135.3951224,
+        latitude: "35.4687988",
+        longitude: "135.3951224",
       },
       name: "Higashi Maizuru Station",
     },
     {
       coordinate: {
-        latitude: 35.3023425,
-        longitude: 135.2523702,
+        latitude: "35.3023425",
+        longitude: "135.2523702",
       },
       name: "Ayabe Station",
     },

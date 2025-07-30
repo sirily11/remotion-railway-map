@@ -170,6 +170,44 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
       return stopPoints[0];
     }
     
+    // If we have actual route segments, follow the route path
+    if (segments && segments[currentSegmentIndex] && segments[currentSegmentIndex].length > 0) {
+      const currentSegment = segments[currentSegmentIndex];
+      const totalPoints = currentSegment.length - 1;
+      const exactIndex = segmentAnimation * totalPoints;
+      const segmentPointIndex = Math.floor(exactIndex);
+      const nextPointIndex = Math.min(segmentPointIndex + 1, totalPoints);
+      const localProgress = exactIndex - segmentPointIndex;
+      
+      const segmentPoint = currentSegment[segmentPointIndex];
+      const nextPoint = currentSegment[nextPointIndex];
+      
+      if (segmentPoint && nextPoint) {
+        // Interpolate between route points for smooth movement
+        const lat = interpolate(
+          localProgress,
+          [0, 1],
+          [parseFloat(segmentPoint.latitude), parseFloat(nextPoint.latitude)]
+        );
+        const lon = interpolate(
+          localProgress,
+          [0, 1],
+          [parseFloat(segmentPoint.longitude), parseFloat(nextPoint.longitude)]
+        );
+        
+        return {
+          latitude: lat.toString(),
+          longitude: lon.toString(),
+        };
+      } else if (segmentPoint) {
+        return {
+          latitude: segmentPoint.latitude,
+          longitude: segmentPoint.longitude,
+        };
+      }
+    }
+    
+    // Fallback to interpolating between stops if no segments
     const fromStop = stopPoints[currentSegmentIndex];
     const toStop = stopPoints[Math.min(currentSegmentIndex + 1, stopPoints.length - 1)];
     
@@ -177,15 +215,15 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
       latitude: interpolate(
         segmentAnimation,
         [0, 1],
-        [fromStop.latitude, toStop.latitude]
-      ),
+        [parseFloat(fromStop.latitude), parseFloat(toStop.latitude)]
+      ).toString(),
       longitude: interpolate(
         segmentAnimation,
         [0, 1],
-        [fromStop.longitude, toStop.longitude]
-      ),
+        [parseFloat(fromStop.longitude), parseFloat(toStop.longitude)]
+      ).toString(),
     };
-  }, [currentSegmentIndex, stopPoints, segmentAnimation]);
+  }, [currentSegmentIndex, stopPoints, segmentAnimation, segments]);
 
   // Calculate offsets for all stops
   const stopOffsets = useMemo(() => {
