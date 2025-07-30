@@ -7,19 +7,25 @@ import { useEffect, useState } from "react";
 interface DrivingTrain {
   id: number;
   Icon: typeof Train;
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
+  y: number;
   duration: number;
   delay: number;
   size: number;
-  rotation: number;
+  direction: "left" | "right";
   color: string;
 }
 
 const TRAIN_ICONS = [Train, TramFront, TrainFront];
-const TRAIN_COLORS = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#f9ca24", "#f0932b", "#eb4d4b", "#6ab04c", "#c7ecee"];
+const TRAIN_COLORS = [
+  "#ff6b6b",
+  "#4ecdc4",
+  "#45b7d1",
+  "#f9ca24",
+  "#f0932b",
+  "#eb4d4b",
+  "#6ab04c",
+  "#c7ecee",
+];
 
 export const DrivingTrains = () => {
   const [trains, setTrains] = useState<DrivingTrain[]>([]);
@@ -27,7 +33,7 @@ export const DrivingTrains = () => {
   useEffect(() => {
     const generateTrains = () => {
       const newTrains: DrivingTrain[] = [];
-      
+
       // Generate trains at different heights
       for (let i = 0; i < 8; i++) {
         const direction = Math.random() > 0.5 ? "left" : "right";
@@ -49,7 +55,10 @@ export const DrivingTrains = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
+    <div
+      className="fixed inset-0 overflow-hidden pointer-events-none"
+      style={{ zIndex: 2 }}
+    >
       {trains.map((train) => {
         const Icon = train.Icon;
         return (
@@ -83,14 +92,15 @@ export const DrivingTrains = () => {
                 ease: "easeInOut",
               }}
               style={{
-                transform: train.direction === "right" ? "scaleX(-1)" : "scaleX(1)",
+                transform:
+                  train.direction === "right" ? "scaleX(-1)" : "scaleX(1)",
               }}
             >
               <Icon size={train.size} strokeWidth={2.5} />
             </motion.div>
-            
+
             {/* Add train tracks */}
-            <div 
+            <div
               className="absolute top-full left-1/2 transform -translate-x-1/2"
               style={{
                 width: "200vw",
@@ -108,7 +118,7 @@ export const DrivingTrains = () => {
           </motion.div>
         );
       })}
-      
+
       {/* Add some train stations */}
       {[15, 50, 85].map((xPos, i) => (
         <motion.div
