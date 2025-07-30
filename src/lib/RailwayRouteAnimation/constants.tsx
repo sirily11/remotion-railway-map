@@ -3,79 +3,94 @@ import { z } from "zod";
 // Position with coordinate and name
 const position = z.object({
   coordinate: z.object({
-    longitude: z.number().step(0.0000001),
-    latitude: z.number().step(0.0000001),
+    longitude: z.number(),
+    latitude: z.number(),
   }),
   name: z.string(),
 });
 
 // Route coordinate
 const routeCoordinate = z.object({
-  longitude: z.number().step(0.0000001),
-  latitude: z.number().step(0.0000001),
+  longitude: z.number(),
+  latitude: z.number(),
 });
 
 export type Position = z.infer<typeof position>;
 export type RouteCoordinate = z.infer<typeof routeCoordinate>;
 
-// Map render types
-export const MapRenderType = z.enum(["tiles", "mapbox"]);
-export type MapRenderType = z.infer<typeof MapRenderType>;
-
-// Mapbox style options
-export const MapboxStyle = z.enum([
-  "dark",
-  "satellite",
-  "navigation",
-  "blueprint",
-  "custom",
-]);
-export type MapboxStyle = z.infer<typeof MapboxStyle>;
-
 // Tile style options
 export const TileStyle = z.enum([
-  "watercolor",
-  "dark",
-  "darkMatter",
-  "positron",
-  "toner",
-  "terrain",
-  "satellite",
-  "osm",
-  "osmBright",
+  "watercolor", // Artistic watercolor style
+  "dark", // Dark theme (StadiaMaps - has limits)
+  "darkMatter", // Dark theme (CartoDB - free)
+  "positron", // Light theme (CartoDB - free)
+  "toner", // High contrast B&W (StadiaMaps - has limits)
+  "terrain", // Terrain with elevation (StadiaMaps - has limits)
+  "satellite", // Satellite imagery (ArcGIS)
+  "osm", // OpenStreetMap standard (free, no limits)
+  "osmBright", // Bright OSM style (StadiaMaps - has limits)
 ]);
 export type TileStyle = z.infer<typeof TileStyle>;
 
 // Route fetching methods
 export const RouteMethod = z.enum([
-  "straight",
-  "curved",
-  "openrailrouting",
-  "overpass",
+  "straight", // Direct straight line
+  "curved", // Smooth bezier curve
+  "osm", // Road routing via OSRM
+  "overpass", // Actual railway tracks from OpenStreetMap
+  "railway", // Simplified railway-only routing
+  "openrailway", // OpenRailway API for rail-specific routing
 ]);
 export type RouteMethod = z.infer<typeof RouteMethod>;
 
 // Composition props
 export const RailwayRouteCompositionProps = z.object({
-  startPosition: position,
-  endPosition: position,
-  route: z.array(routeCoordinate).optional(),
-  durationInFrames: z.number().min(30).default(500),
-  animationStartDelay: z.number().min(0).default(30),
-  animationDuration: z.number().min(30).default(120),
-  renderType: MapRenderType.default("tiles"),
-  mapboxStyle: MapboxStyle.default("dark"),
-  tileStyle: TileStyle.default("dark"),
-  mapboxZoom: z.number().min(0).max(100).default(10).optional(),
-  mapboxAltitude: z.number().min(0).default(50000).optional(),
+  stops: z
+    .array(position)
+    .min(2)
+    .describe("Array of stops along the journey (minimum 2)"),
+  segments: z
+    .array(z.array(routeCoordinate))
+    .optional()
+    .describe("Optional pre-defined route segments between stops"),
+  durationInFrames: z
+    .number()
+    .min(30)
+    .default(500)
+    .describe("Total duration of the animation in frames"),
+  animationStartDelay: z
+    .number()
+    .min(0)
+    .default(30)
+    .describe("Delay before animation starts (in frames)"),
+  animationDuration: z
+    .number()
+    .min(30)
+    .default(120)
+    .describe("Duration of the route animation (in frames)"),
+  tileStyle: TileStyle.default("osm").describe("Map tile style"),
+  zoom: z
+    .number()
+    .min(1)
+    .max(20)
+    .optional()
+    .describe("Map zoom level (1-20). Auto-calculated if not provided"),
 });
 
 // Extended props with fetching capabilities
 export const RailwayRouteWithFetchCompositionProps =
   RailwayRouteCompositionProps.extend({
-    fetchRoute: z.boolean().default(false),
-    routeMethod: RouteMethod.default("openrailrouting"),
-    fetchStationCoordinates: z.boolean().default(false),
+    fetchRoute: z
+      .boolean()
+      .default(true)
+      .describe("Fetch actual routes between stops"),
+    routeMethod: RouteMethod.default("railway").describe(
+      "Method to fetch routes",
+    ),
+    fetchStationCoordinates: z
+      .boolean()
+      .default(false)
+      .describe("Fetch station coordinates by name"),
   });
 
 export type RailwayRouteProps = z.infer<typeof RailwayRouteCompositionProps>;
@@ -83,28 +98,29 @@ export type RailwayRouteWithFetchProps = z.infer<
   typeof RailwayRouteWithFetchCompositionProps
 >;
 
-// Default example props - Higashi Maizuru to Ayabe
+// Default example props - Multiple stops journey
 export const defaultRailwayRouteProps: RailwayRouteProps = {
-  startPosition: {
-    coordinate: {
-      latitude: 35.4687988,
-      longitude: 135.3951224,
+  stops: [
+    {
+      coordinate: {
+        latitude: 35.4687988,
+        longitude: 135.3951224,
+      },
+      name: "Higashi Maizuru Station",
     },
-    name: "Higashi Maizuru Station",
-  },
-  endPosition: {
-    coordinate: {
-      latitude: 35.3023425,
-      longitude: 135.2523702,
+    {
+      coordinate: {
+        latitude: 35.3023425,
+        longitude: 135.2523702,
+      },
+      name: "Ayabe Station",
     },
-    name: "Ayabe Station",
-  },
-  durationInFrames: 200,
+  ],
+  durationInFrames: 600,
   animationStartDelay: 30,
-  animationDuration: 120,
-  renderType: "tiles",
-  mapboxStyle: "dark",
-  tileStyle: "dark",
+  animationDuration: 180,
+  tileStyle: "osm",
+  zoom: 15,
 };
 
 // Animation constants

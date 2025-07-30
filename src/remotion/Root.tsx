@@ -43,7 +43,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="RailwayRoute"
         component={RailwayRouteAnimation}
-        durationInFrames={defaultRailwayRouteProps.durationInFrames}
+        durationInFrames={4000}
         fps={VIDEO_FPS}
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
@@ -58,26 +58,55 @@ export const RemotionRoot: React.FC = () => {
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         defaultProps={{
-          startPosition: {
-            coordinate: { latitude: 35.4687988, longitude: 135.3951224 },
-            name: "Higashi Maizuru Station",
-          },
-          endPosition: {
-            coordinate: { latitude: 35.3023425, longitude: 135.2523702 },
-            name: "Ayabe Station",
-          },
-          durationInFrames: 200,
+          stops: [
+            {
+              coordinate: { latitude: 35.4687988, longitude: 135.3951224 },
+              name: "Higashi Maizuru Station",
+            },
+            {
+              coordinate: { latitude: 35.3023425, longitude: 135.2523702 },
+              name: "Ayabe Station",
+            },
+            {
+              coordinate: { latitude: 35.2991, longitude: 135.1957 },
+              name: "Fukuchiyama Station",
+            },
+          ],
+          durationInFrames: 600,
           animationStartDelay: 30,
-          animationDuration: 120,
-          renderType: "mapbox" as const,
-          mapboxStyle: "dark" as const,
-          tileStyle: "dark" as const,
+          animationDuration: 500,
+          tileStyle: "osm" as const,
           fetchRoute: true,
-          routeMethod: "openrailrouting" as const,
-          mapboxZoom: 30,
-          mapboxAltitude: 10000,
+          routeMethod: "openrailway" as const,
+          zoom: 15,
         }}
         schema={RailwayRouteWithFetchCompositionProps}
+      />
+      <Composition
+        id="MultiStopRailwayRoute"
+        component={RailwayRouteAnimation}
+        durationInFrames={defaultRailwayRouteProps.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={{
+          stops: [
+            {
+              coordinate: { latitude: 35.6762, longitude: 139.6503 },
+              name: "Tokyo Station",
+            },
+            {
+              coordinate: { latitude: 35.1033, longitude: 138.86 },
+              name: "Atami Station",
+            },
+          ],
+          durationInFrames: 300,
+          animationStartDelay: 30,
+          animationDuration: 240,
+          tileStyle: "osm" as const,
+          zoom: 8,
+        }}
+        schema={RailwayRouteCompositionProps}
       />
     </>
   );

@@ -13,22 +13,25 @@ pnpm install
 pnpm run dev
 
 # Open Remotion Studio for video editing
+pnpm run remotion
+# or
 npx remotion studio
 
 # Render a video locally
+pnpm run render
+# or
 pnpm exec remotion render
+
+# Deploy Lambda function and Remotion Bundle
+pnpm run deploy
+# or
+node deploy.mjs
 
 # Lint the codebase
 pnpm run lint
 
 # Build the Next.js application
 pnpm run build
-```
-
-### AWS Lambda Deployment
-```bash
-# Deploy Lambda function and Remotion Bundle
-node deploy.mjs
 
 # Upgrade Remotion to the latest version
 pnpm exec remotion upgrade
@@ -36,33 +39,55 @@ pnpm exec remotion upgrade
 
 ## Architecture Overview
 
-This is a Next.js application integrated with Remotion for programmatic video generation. Key components:
+This is a Next.js application (v15) integrated with Remotion (v4.0.327) for programmatic video generation, specializing in animated railway route visualizations.
 
 ### Video Compositions
-- **Main composition**: Located in `src/remotion/MyComp/Main.tsx`, configured in `src/remotion/Root.tsx`
-- **Constants**: Video dimensions, FPS, and duration defined in `types/constants.ts`
-- **Webpack override**: Custom configuration in `src/remotion/webpack-override.mjs`
+- **Entry point**: `src/remotion/index.ts` registers the root component
+- **Root component**: `src/remotion/Root.tsx` defines all available compositions
+- **Main compositions**:
+  - `MyComp`: Default composition in `src/remotion/MyComp/Main.tsx`
+  - `RailwayRoute`: Railway route animations with predefined routes
+  - `RailwayRouteWithFetch`: Railway animations that fetch routes dynamically from APIs
+  - `MultiStopRailwayRoute`: Multi-stop railway journey animations
+- **Video settings**: 3840x2160 (4K), 30 FPS, defined in `types/constants.ts`
+- **Webpack config**: Tailwind v4 integration via `src/remotion/webpack-override.mjs`
 
-### Map Animation Features
-- **MapAnimation**: Custom map animation library in `src/lib/MapAnimation/` with tile rendering, point-to-point animations, and mercator projections
-- **MapboxExample**: Integration with Mapbox GL for 3D map animations in `src/lib/MapboxExample/`
+### Railway Route Animation System
+Located in `src/lib/RailwayRouteAnimation/`:
+- **Route fetching**: Multiple methods (straight, curved, OSM/OSRM, Overpass API, OpenRailway API)
+- **Map tiles**: Supports various tile providers (OSM, CartoDB, StadiaMaps, ArcGIS satellite)
+- **Animation**: Smooth camera movements, route drawing, station markers
+- **Utilities**: Mercator projection, geo calculations, area bounds
 
-### Lambda Integration
-- **API Routes**: Lambda render endpoints at `src/app/api/lambda/render/route.ts` and `src/app/api/lambda/progress/route.ts`
-- **Configuration**: Lambda settings (region, RAM, disk, timeout) in `config.mjs`
-- **Deployment**: Automated deployment script in `deploy.mjs`
+### Lambda Deployment
+- **API Routes**: 
+  - `/api/lambda/render`: Initiates video rendering on AWS Lambda
+  - `/api/lambda/progress`: Checks rendering progress
+- **Configuration** (`config.mjs`):
+  - Region: us-east-1
+  - RAM: 3009 MB
+  - Disk: 10240 MB
+  - Timeout: 240 seconds
+- **Deployment**: Run `node deploy.mjs` to deploy/update Lambda function and site bundle
 
-### UI Components
-- **Player Controls**: Video player and rendering controls in `src/components/`
-- **Styling**: Tailwind CSS v4 with Remotion integration
+### Environment Variables
+Copy `.env.example` to `.env`:
+- `REMOTION_AWS_ACCESS_KEY_ID`: AWS credentials for Lambda
+- `REMOTION_AWS_SECRET_ACCESS_KEY`: AWS credentials for Lambda
 
-## Environment Setup
+### Key Libraries
+- **Next.js** 15.2.4 with App Router
+- **Remotion** 4.0.327 (core, player, lambda, shapes, paths)
+- **@turf/turf** for geo calculations
+- **Tailwind CSS v4** via @remotion/tailwind-v4
+- **TypeScript** 5.8.2 with strict typing
 
-Required environment variables (copy `.env.example` to `.env`):
-- `REMOTION_AWS_ACCESS_KEY_ID`: AWS access key for Lambda deployment
-- `REMOTION_AWS_SECRET_ACCESS_KEY`: AWS secret key for Lambda deployment
-- `REMOTION_MAPBOX_TOKEN`: Mapbox access token for map visualizations
+## Working with Railway Routes
 
-## Testing
+The railway route animations support multiple data sources:
+- **Predefined routes**: Hard-coded coordinates in composition props
+- **OSM/OSRM**: Road-based routing (cars, bikes, walking)
+- **Overpass API**: Actual railway track data from OpenStreetMap
+- **OpenRailway API**: Railway-specific routing
 
-Check package.json for test scripts once tests are implemented. Currently, ensure all TypeScript compiles and linting passes before committing.
+Route methods can be specified via the `routeMethod` prop in compositions.

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { AbsoluteFill } from 'remotion';
 import { evolvePath } from '@remotion/paths';
 import { LINE_WIDTH, LINE_STROKE_WIDTH, LINE_COLOR, RouteCoordinate } from './constants';
+import { getXFromLongitude, getYFromLatitude } from './utils/mercator';
 
 interface RouteAnimatorProps {
   startOffset: { x: number; y: number };
@@ -10,6 +11,8 @@ interface RouteAnimatorProps {
   width: number;
   height: number;
   progress: number;
+  zoom?: number;
+  center?: { latitude: number; longitude: number };
 }
 
 const getPathFromRoute = ({
@@ -18,18 +21,35 @@ const getPathFromRoute = ({
   endOffset,
   width,
   height,
+  zoom = 12,
 }: {
   route: RouteCoordinate[];
   startOffset: { x: number; y: number };
   endOffset: { x: number; y: number };
   width: number;
   height: number;
+  zoom?: number;
 }) => {
+  if (route.length === 0) return '';
+  
+  // Convert all route points to mercator projection
+  const projectedPoints = route.map(coord => ({
+    x: getXFromLongitude(coord.longitude, zoom),
+    y: getYFromLatitude(coord.latitude, zoom),
+  }));
+  
+  // Get the first point as reference
+  const firstPoint = projectedPoints[0];
+  
   // Convert route coordinates to SVG path
-  const pathPoints = route.map((coord, index) => {
-    // Calculate position relative to center
-    const x = width / 2 + (endOffset.x - startOffset.x) * (index / (route.length - 1));
-    const y = height / 2 + (endOffset.y - startOffset.y) * (index / (route.length - 1));
+  const pathPoints = projectedPoints.map((point, index) => {
+    // Calculate relative position from the first point
+    const relativeX = point.x - firstPoint.x;
+    const relativeY = point.y - firstPoint.y;
+    
+    // Position relative to center, accounting for the segment offset
+    const x = width / 2 + relativeX;
+    const y = height / 2 + relativeY;
     
     if (index === 0) {
       return `M ${x} ${y}`;
@@ -78,6 +98,8 @@ export const RouteAnimator: React.FC<RouteAnimatorProps> = ({
   width,
   height,
   progress,
+  zoom,
+  center,
 }) => {
   const pathData = useMemo(() => {
     if (route && route.length > 0) {
@@ -87,6 +109,7 @@ export const RouteAnimator: React.FC<RouteAnimatorProps> = ({
         endOffset,
         width,
         height,
+        zoom,
       });
     }
     
@@ -96,7 +119,7 @@ export const RouteAnimator: React.FC<RouteAnimatorProps> = ({
       endOffset,
       startOffset,
     });
-  }, [route, startOffset, endOffset, width, height]);
+  }, [route, startOffset, endOffset, width, height, zoom]);
 
   const { strokeDasharray, strokeDashoffset } = evolvePath(progress, pathData);
 
