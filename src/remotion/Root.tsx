@@ -67,10 +67,6 @@ export const RemotionRoot: React.FC = () => {
               coordinate: { latitude: 35.3023425, longitude: 135.2523702 },
               name: "Ayabe Station",
             },
-            {
-              coordinate: { latitude: 35.2991, longitude: 135.1957 },
-              name: "Fukuchiyama Station",
-            },
           ],
           durationInFrames: 600,
           animationStartDelay: 30,
