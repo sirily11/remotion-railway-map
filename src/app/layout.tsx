@@ -1,5 +1,6 @@
 import "../../styles/global.css";
 import { Metadata, Viewport } from "next";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Remotion and Next.js",
@@ -19,7 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-background">{children}</body>
+      <body className="bg-background">
+        {children}
+        <Toaster position="top-right" />
+      </body>
     </html>
   );
 }

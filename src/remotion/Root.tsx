@@ -84,6 +84,76 @@ export const RemotionRoot: React.FC = () => {
         }}
         schema={RailwayRouteWithFetchCompositionProps}
       />
+      <Composition
+        id="MountainRouteSmooth"
+        component={RailwayRouteWithFetch as any}
+        durationInFrames={900}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={{
+          stops: [
+            {
+              coordinate: {
+                latitude: "36.5748441",
+                longitude: "137.6629677",
+              },
+              name: "Toyama Station",
+            },
+            {
+              coordinate: {
+                latitude: "36.7012011",
+                longitude: "137.2137071",
+              },
+              name: "Takayama Station",
+            },
+          ],
+          durationInFrames: 900,
+          animationStartDelay: 30,
+          animationDuration: 800,
+          tileStyle: "terrain" as const,
+          fetchRoute: true,
+          routeMethod: "openrailway" as const,
+          zoom: 10,
+          cameraSmoothing: 0.12, // Higher smoothing for mountain routes
+        }}
+        schema={RailwayRouteWithFetchCompositionProps}
+      />
+      <Composition
+        id="MountainRouteShaky"
+        component={RailwayRouteWithFetch as any}
+        durationInFrames={900}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={{
+          stops: [
+            {
+              coordinate: {
+                latitude: "36.5748441",
+                longitude: "137.6629677",
+              },
+              name: "Toyama Station",
+            },
+            {
+              coordinate: {
+                latitude: "36.7012011",
+                longitude: "137.2137071",
+              },
+              name: "Takayama Station",
+            },
+          ],
+          durationInFrames: 900,
+          animationStartDelay: 30,
+          animationDuration: 800,
+          tileStyle: "terrain" as const,
+          fetchRoute: true,
+          routeMethod: "openrailway" as const,
+          zoom: 10,
+          cameraSmoothing: 0.0, // No smoothing (original behavior)
+        }}
+        schema={RailwayRouteWithFetchCompositionProps}
+      />
     </>
   );
 };

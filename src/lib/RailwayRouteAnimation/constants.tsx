@@ -43,7 +43,7 @@ export const RouteMethod = z.enum([
 ]);
 export type RouteMethod = z.infer<typeof RouteMethod>;
 
-// Composition props
+// Base composition props without fetching capabilities
 export const RailwayRouteCompositionProps = z.object({
   stops: z
     .array(position)
@@ -81,24 +81,66 @@ export const RailwayRouteCompositionProps = z.object({
     .max(1)
     .default(0.08)
     .optional()
-    .describe("Camera smoothing strength (0-1). Higher values = smoother but slower camera movement"),
+    .describe(
+      "Camera smoothing strength (0-1). Higher values = smoother but slower camera movement",
+    ),
 });
 
-// Extended props with fetching capabilities
-export const RailwayRouteWithFetchCompositionProps =
-  RailwayRouteCompositionProps.extend({
+// Complete props with fetching capabilities - all properties in one schema
+export const RailwayRouteWithFetchCompositionProps = z
+  .object({
+    stops: z
+      .array(position)
+      .min(2)
+      .describe("Array of stops along the journey (minimum 2)"),
+    segments: z
+      .array(z.array(routeCoordinate))
+      .optional()
+      .describe("Optional pre-defined route segments between stops"),
+    durationInFrames: z
+      .number()
+      .min(30)
+      .default(500)
+      .describe("Total duration of the animation in frames"),
+    animationStartDelay: z
+      .number()
+      .min(0)
+      .default(30)
+      .describe("Delay before animation starts (in frames)"),
+    animationDuration: z
+      .number()
+      .min(30)
+      .default(120)
+      .describe("Duration of the route animation (in frames)"),
+    tileStyle: TileStyle.default("osm").describe("Map tile style"),
+    zoom: z
+      .number()
+      .min(1)
+      .max(20)
+      .optional()
+      .describe("Map zoom level (1-20). Auto-calculated if not provided"),
+    cameraSmoothing: z
+      .number()
+      .min(0)
+      .max(1)
+      .default(0.08)
+      .optional()
+      .describe(
+        "Camera smoothing strength (0-1). Higher values = smoother but slower camera movement",
+      ),
     fetchRoute: z
       .boolean()
       .default(true)
       .describe("Fetch actual routes between stops"),
-    routeMethod: RouteMethod.default("railway").describe(
+    routeMethod: RouteMethod.default("openrailway").describe(
       "Method to fetch routes",
     ),
     fetchStationCoordinates: z
       .boolean()
       .default(false)
       .describe("Fetch station coordinates by name"),
-  });
+  })
+  .describe("Complete composition props with fetching capabilities");
 
 export type RailwayRouteProps = z.infer<typeof RailwayRouteCompositionProps>;
 export type RailwayRouteWithFetchProps = z.infer<
