@@ -1,5 +1,4 @@
 import {Point} from './geo-utils';
-import {Area} from '../TilesLayer';
 import {
 	getLatitudeFromY,
 	getLongitudeFromX,

@@ -1,4 +1,4 @@
-import {Point} from '../constants';
+import {Point} from './constants';
 import {TILE_SIZE} from './mercator';
 
 // Left: Degrees per tile, Right: zoom level

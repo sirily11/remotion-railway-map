@@ -1,4 +1,4 @@
-import {Point} from '../constants';
+import {Point} from './constants';
 import {getDistanceBetweenTwoPoints} from './get-distance-between-two-points';
 
 // When going from 1° -> 359° longitude, we don't go around the whole earth

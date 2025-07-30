@@ -4,7 +4,7 @@ import {fontFamily, loadFont} from '@remotion/google-fonts/Lora';
 
 loadFont();
 
-export type LabelPosition = 'above' | 'below';
+export type LabelPosition = 'top' | 'bottom' | 'left' | 'right';
 
 export const Label: React.FC<{
 	label: string;
@@ -15,7 +15,7 @@ export const Label: React.FC<{
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				marginTop: position === 'above' ? -90 : 90,
+				marginTop: position === 'top' ? -90 : position === 'bottom' ? 90 : 0,
 				fontSize: 40,
 				fontWeight: 'bold',
 				fontFamily,

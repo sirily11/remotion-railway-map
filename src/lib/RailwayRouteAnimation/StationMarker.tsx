@@ -5,7 +5,7 @@ import { LABEL_FONT_SIZE, LABEL_MARGIN_TOP, MARKER_SIZE } from './constants';
 
 loadFont();
 
-export type LabelPosition = 'above' | 'below';
+export type LabelPosition = 'top' | 'bottom' | 'left' | 'right';
 
 interface StationMarkerProps {
   name: string;
@@ -51,7 +51,7 @@ export const StationMarker: React.FC<StationMarkerProps> = ({
         style={{
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: labelPosition === 'above' ? -LABEL_MARGIN_TOP : LABEL_MARGIN_TOP,
+          marginTop: labelPosition === 'top' ? -LABEL_MARGIN_TOP : labelPosition === 'bottom' ? LABEL_MARGIN_TOP : 0,
           fontSize: LABEL_FONT_SIZE,
           fontWeight: 'bold',
           fontFamily,

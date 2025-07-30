@@ -3,7 +3,7 @@
 import React from 'react';
 import {Img} from 'remotion';
 import {getXFromLongitude, getYFromLatitude, TILE_SIZE} from './mercator';
-import {Point} from '../constants';
+import {Point} from './constants';
 
 export type Area = {
 	leftTop: Point;

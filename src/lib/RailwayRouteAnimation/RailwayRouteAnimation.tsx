@@ -13,8 +13,6 @@ import { RouteAnimator } from './RouteAnimator';
 import { TilesLayer } from './TilesLayer';
 import {
   positionToPoint,
-  getCloserEndPoint,
-  calculateZoom,
   getLabelPosition,
   Point,
 } from './utils/geo-utils';
@@ -37,39 +35,29 @@ const getBackgroundColor = (tileStyle: string) => {
 
 export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
   const {
-    startPosition,
-    endPosition,
-    route,
     stops,
     segments,
-    durationInFrames,
     animationStartDelay,
     animationDuration,
     tileStyle,
     zoom: propsZoom,
   } = props;
   
-  // Use stops if provided, otherwise fall back to start/end positions
+  // Use stops if provided
   const journeyStops = useMemo(() => {
     if (stops && stops.length >= 2) {
       return stops;
     }
-    if (startPosition && endPosition) {
-      return [startPosition, endPosition];
-    }
-    throw new Error('Either stops array or startPosition/endPosition must be provided');
-  }, [stops, startPosition, endPosition]);
+    throw new Error('Stops array must have at least 2 stops');
+  }, [stops]);
   
-  // Use segments if provided, otherwise use single route or empty
+  // Use segments if provided, otherwise empty
   const routeSegments = useMemo(() => {
     if (segments) {
       return segments;
     }
-    if (route) {
-      return [route];
-    }
     return Array(journeyStops.length - 1).fill([]);
-  }, [segments, route, journeyStops.length]);
+  }, [segments, journeyStops.length]);
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
 
@@ -79,24 +67,18 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
   }, [journeyStops]);
   
   // Calculate overall journey bounds
-  const { zoom, centerPoint } = useMemo(() => {
+  const zoom = useMemo(() => {
+    // Use props zoom if provided, otherwise calculate
+    if (propsZoom !== undefined) {
+      return propsZoom;
+    }
+    
     const lats = stopPoints.map(p => p.latitude);
     const lngs = stopPoints.map(p => p.longitude);
     const minLat = Math.min(...lats);
     const maxLat = Math.max(...lats);
     const minLng = Math.min(...lngs);
     const maxLng = Math.max(...lngs);
-    
-    const centerLat = (minLat + maxLat) / 2;
-    const centerLng = (minLng + maxLng) / 2;
-    
-    // Use props zoom if provided, otherwise calculate
-    if (propsZoom !== undefined) {
-      return {
-        zoom: propsZoom,
-        centerPoint: { latitude: centerLat, longitude: centerLng }
-      };
-    }
     
     // Calculate zoom to fit all stops
     const latDiff = maxLat - minLat;
@@ -112,10 +94,7 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
     else if (maxDiff > 0.1) calculatedZoom = 10;
     else if (maxDiff > 0.05) calculatedZoom = 11;
     
-    return {
-      zoom: calculatedZoom,
-      centerPoint: { latitude: centerLat, longitude: centerLng }
-    };
+    return calculatedZoom;
   }, [stopPoints, propsZoom]);
 
   // Calculate which segment we're currently animating
@@ -300,7 +279,6 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
         if (prevPoint && nextPoint) {
           // For intermediate stops, position label away from the route
           const avgLat = (prevPoint.latitude + nextPoint.latitude) / 2;
-          const avgLng = (prevPoint.longitude + nextPoint.longitude) / 2;
           
           if (currentPoint.latitude > avgLat) labelPosition = 'top';
           else labelPosition = 'bottom';

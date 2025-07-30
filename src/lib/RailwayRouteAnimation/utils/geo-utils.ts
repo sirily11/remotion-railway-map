@@ -66,10 +66,10 @@ export const getLabelPosition = (
   point1: Point,
   point2: Point,
   isStart: boolean,
-): "above" | "below" => {
+): "top" | "bottom" | "left" | "right" => {
   if (isStart) {
-    return point1.latitude > point2.latitude ? "above" : "below";
+    return point1.latitude > point2.latitude ? "top" : "bottom";
   } else {
-    return point2.latitude > point1.latitude ? "above" : "below";
+    return point2.latitude > point1.latitude ? "top" : "bottom";
   }
 };

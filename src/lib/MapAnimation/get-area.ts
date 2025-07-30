@@ -1,4 +1,4 @@
-import {Point} from '../constants';
+import {Point} from './constants';
 import {
 	getLatitudeFromY,
 	getLongitudeFromX,

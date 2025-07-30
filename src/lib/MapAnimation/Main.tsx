@@ -12,7 +12,7 @@ import {CenterPoint} from './CenterPoint';
 import {getCloserEndPoint} from './get-closer-end-point';
 import {Area, TilesLayer} from './TilesLayer';
 import {getArea, getOffset} from './get-area';
-import {Point, VideoProps} from '../constants';
+import {Point, VideoProps} from './constants';
 import {Label, LabelPosition} from './Label';
 import {getZoom} from './get-zoom';
 
@@ -209,9 +209,9 @@ export const Main: React.FC<VideoProps> = ({
 	const {strokeDasharray, strokeDashoffset} = evolvePath(animation, d);
 
 	const endLabelPosition: LabelPosition =
-		closerEndPoint.latitude > startPoint.latitude ? 'above' : 'below';
+		closerEndPoint.latitude > startPoint.latitude ? 'top' : 'bottom';
 	const startLabelPosition: LabelPosition =
-		startPoint.latitude > closerEndPoint.latitude ? 'above' : 'below';
+		startPoint.latitude > closerEndPoint.latitude ? 'top' : 'bottom';
 
 	return (
 		<AbsoluteFill style={outer}>
