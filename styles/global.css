@@ -14,7 +14,7 @@
   --geist-quarter-pad: 6px;
   --geist-half-pad: 12px;
   --geist-pad: 24px;
-  --geist-font: "Comic Sans MS", "Comic Neue", cursive;
+  --geist-font: var(--font-fredoka), var(--font-inter), sans-serif;
 
   --geist-error: #ff6b6b;
 
@@ -112,6 +112,7 @@
   --spacing-geist-quarter: var(--geist-quarter-pad);
   --radius-geist: var(--geist-border-radius);
   --font-geist: var(--geist-font);
+  --font-sans: var(--font-fredoka), var(--font-inter), sans-serif;
   --animate-spinner: spinner 1.2s linear infinite;
 
   @keyframes spinner {
