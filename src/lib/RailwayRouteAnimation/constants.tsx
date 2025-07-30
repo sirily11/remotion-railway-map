@@ -75,6 +75,13 @@ export const RailwayRouteCompositionProps = z.object({
     .max(20)
     .optional()
     .describe("Map zoom level (1-20). Auto-calculated if not provided"),
+  cameraSmoothing: z
+    .number()
+    .min(0)
+    .max(1)
+    .default(0.08)
+    .optional()
+    .describe("Camera smoothing strength (0-1). Higher values = smoother but slower camera movement"),
 });
 
 // Extended props with fetching capabilities

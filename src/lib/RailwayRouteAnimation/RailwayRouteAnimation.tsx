@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   AbsoluteFill,
   Easing,
@@ -17,6 +17,7 @@ import {
   Point,
 } from './utils/geo-utils';
 import { getArea, getOffset } from './utils/get-area';
+import { bezierSmoothing, applyCameraSmoothing } from './utils/camera-smoothing';
 
 const getBackgroundColor = (tileStyle: string) => {
   switch (tileStyle) {
@@ -41,6 +42,7 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
     animationDuration,
     tileStyle,
     zoom: propsZoom,
+    cameraSmoothing = 0.08,
   } = props;
   
   // Use stops if provided
@@ -163,48 +165,28 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
     });
   }, [journeyStops, fps, frame, animationStartDelay, segmentDuration]);
 
-  // Calculate current camera center based on animation progress
-  const center: Point = useMemo(() => {
+  // Store previous camera position for smoothing
+  const previousCenterRef = useRef<Point | null>(null);
+  
+  // Calculate target camera center based on animation progress
+  const targetCenter: Point = useMemo(() => {
     if (currentSegmentIndex < 0) {
       // During delay, stay at the first stop instead of showing overall view
       return stopPoints[0];
     }
     
-    // If we have actual route segments, follow the route path
+    // If we have actual route segments, follow the route path with smoothing
     if (segments && segments[currentSegmentIndex] && segments[currentSegmentIndex].length > 0) {
       const currentSegment = segments[currentSegmentIndex];
-      const totalPoints = currentSegment.length - 1;
-      const exactIndex = segmentAnimation * totalPoints;
-      const segmentPointIndex = Math.floor(exactIndex);
-      const nextPointIndex = Math.min(segmentPointIndex + 1, totalPoints);
-      const localProgress = exactIndex - segmentPointIndex;
       
-      const segmentPoint = currentSegment[segmentPointIndex];
-      const nextPoint = currentSegment[nextPointIndex];
+      // Convert segment to points
+      const segmentPoints = currentSegment.map(coord => ({
+        latitude: coord.latitude,
+        longitude: coord.longitude,
+      }));
       
-      if (segmentPoint && nextPoint) {
-        // Interpolate between route points for smooth movement
-        const lat = interpolate(
-          localProgress,
-          [0, 1],
-          [parseFloat(segmentPoint.latitude), parseFloat(nextPoint.latitude)]
-        );
-        const lon = interpolate(
-          localProgress,
-          [0, 1],
-          [parseFloat(segmentPoint.longitude), parseFloat(nextPoint.longitude)]
-        );
-        
-        return {
-          latitude: lat.toString(),
-          longitude: lon.toString(),
-        };
-      } else if (segmentPoint) {
-        return {
-          latitude: segmentPoint.latitude,
-          longitude: segmentPoint.longitude,
-        };
-      }
+      // Use bezier smoothing for camera path
+      return bezierSmoothing(segmentPoints, segmentAnimation, 0.3);
     }
     
     // Fallback to interpolating between stops if no segments
@@ -224,6 +206,30 @@ export const RailwayRouteAnimation: React.FC<RailwayRouteProps> = (props) => {
       ).toString(),
     };
   }, [currentSegmentIndex, stopPoints, segmentAnimation, segments]);
+  
+  // Apply exponential smoothing to camera movement
+  const center: Point = useMemo(() => {
+    if (!previousCenterRef.current) {
+      previousCenterRef.current = targetCenter;
+      return targetCenter;
+    }
+    
+    // Apply smoothing with adjustable strength
+    // Higher values = more smoothing (slower response)
+    // Lower values = less smoothing (faster response)
+    const smoothedCenter = applyCameraSmoothing(
+      previousCenterRef.current,
+      targetCenter,
+      cameraSmoothing
+    );
+    
+    return smoothedCenter;
+  }, [targetCenter]);
+  
+  // Update previous center reference
+  useEffect(() => {
+    previousCenterRef.current = center;
+  }, [center]);
 
   // Calculate offsets for all stops
   const stopOffsets = useMemo(() => {
